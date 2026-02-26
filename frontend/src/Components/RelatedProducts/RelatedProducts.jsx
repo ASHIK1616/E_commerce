@@ -7,17 +7,15 @@ const RelatedProducts = ({category,id}) => {
 
   const [related,setRelated] = useState([]);
 
-  useEffect(()=>{
-    fetch(`${backend_url}/relatedproducts`,{
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({category:category}),
-      })
-    .then((res)=>res.json()).then((data)=>setRelated(data))
-  },[])
+ useEffect(() => {
+  fetch(`${backend_url}/relatedproducts`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ category }),
+  })
+    .then((res) => res.json())
+    .then((data) => setRelated(data));
+}, [category]);   // ✅ FIXED
 
   return (
     <div className='relatedproducts'>
