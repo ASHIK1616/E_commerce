@@ -7,6 +7,63 @@ import { backend_url, currency } from "../../App";
 const CartItems = () => {
   const {products} = useContext(ShopContext);
   const {cartItems,removeFromCart,getTotalCartAmount} = useContext(ShopContext);
+  const handlePayment = async () => {
+  try {
+    const amount = getTotalCartAmount(); // total cart value
+
+    // 1️⃣ create order from backend
+    const res = await fetch("https://e-commerce-i9ps.onrender.com/create-order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ amount }),
+    });
+
+    const data = await res.json();
+
+    // 2️⃣ Razorpay options
+    const options = {
+      key: "rzp_test_SKs8CLuT3trPRa", // 🔴 replace with your NEW test key id
+      amount: data.order.amount,
+      currency: "INR",
+      name: "Ashik E-Commerce",
+      description: "Order Payment",
+      order_id: data.order.id,
+
+      // payment success handler
+      handler: async function (response) {
+        const verify = await fetch("https://e-commerce-i9ps.onrender.com/verify-payment", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(response),
+        });
+
+        const result = await verify.json();
+
+        if (result.success) {
+          alert("🎉 Payment Successful");
+        } else {
+          alert("❌ Payment Failed");
+        }
+      },
+
+      theme: {
+        color: "#ff4141",
+      },
+    };
+
+    // 3️⃣ open Razorpay popup
+    const razor = new window.Razorpay(options);
+    razor.open();
+
+  } catch (error) {
+    console.log(error);
+    alert("Payment error");
+  }
+};
 
   return (
     <div className="cartitems">
@@ -57,7 +114,7 @@ const CartItems = () => {
               <h3>{currency}{getTotalCartAmount()}</h3>
             </div>
           </div>
-          <button>PROCEED TO CHECKOUT</button>
+          <button onClick={handlePayment}>PROCEED TO CHECKOUT</button>
         </div>
         <div className="cartitems-promocode">
           <p>If you have a promo code, Enter it here</p>
