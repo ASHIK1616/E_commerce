@@ -9,6 +9,7 @@ import women_banner from "./Components/Assets/banner_women.png";
 import men_banner from "./Components/Assets/banner_mens.png";
 import kid_banner from "./Components/Assets/banner_kids.png";
 import LoginSignup from "./Pages/LoginSignup";
+import MyOrders from "./Pages/MyOrders";
 
 export const backend_url = "https://e-commerce-i9ps.onrender.com";
 
@@ -21,6 +22,7 @@ function App() {
       <Router>
         <Navbar />
         <Routes>
+          <Route path="/myorders" element={<MyOrders />} />
           <Route path="/" element={<Shop gender="all" />} />
           <Route path="/mens" element={<ShopCategory banner={men_banner} category="men" />} />
           <Route path="/womens" element={<ShopCategory banner={women_banner} category="women" />} />
