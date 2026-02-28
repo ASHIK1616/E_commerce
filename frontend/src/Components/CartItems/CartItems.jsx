@@ -24,7 +24,7 @@ const CartItems = () => {
 
     // 2️⃣ Razorpay options
     const options = {
-      key: "rzp_test_SKs8CLuT3trPRa", // 🔴 replace with your NEW test key id
+      key: "rzp_live_SLS27VkwB35b75", // 🔴 replace with your NEW test key id
       amount: data.order.amount,
       currency: "INR",
       name: "Ashik E-Commerce",
