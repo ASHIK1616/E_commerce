@@ -88,6 +88,16 @@ const Product = mongoose.model("Product", {
   available: { type: Boolean, default: true },
 });
 
+const Order = mongoose.model("Order", {
+  userId: String,
+  products: Array,
+  amount: Number,
+  paymentId: String,
+  orderId: String,
+  status: String,
+  date: { type: Date, default: Date.now }
+});
+
 // ================== ROUTES ==================
 app.get("/", (req, res) => {
   res.send("Backend is running");
@@ -227,12 +237,14 @@ app.post("/create-order", async (req, res) => {
 });
 
 // ================== RAZORPAY VERIFY PAYMENT ==================
-app.post("/verify-payment", (req, res) => {
+app.post("/verify-payment", async (req, res) => {
   try {
     const {
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
+      products,
+      userId,
     } = req.body;
 
     const body = razorpay_order_id + "|" + razorpay_payment_id;
@@ -243,17 +255,38 @@ app.post("/verify-payment", (req, res) => {
       .digest("hex");
 
     if (expectedSignature === razorpay_signature) {
+
+      // ================== SAVE ORDER HERE ==================
+      const order = {
+        userId,
+        products,
+        paymentId: razorpay_payment_id,
+        orderId: razorpay_order_id,
+        status: "Paid",
+        date: new Date(),
+      };
+
+      // create new collection automatically
+      const Order = mongoose.model("Order", new mongoose.Schema({}, { strict: false }));
+
+      await Order.create(order);
+
+      // =====================================================
+
       res.json({
         success: true,
-        message: "Payment verified successfully",
+        message: "Payment verified and order saved",
       });
+
     } else {
       res.json({
         success: false,
         message: "Invalid signature",
       });
     }
+
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       success: false,
       message: "Verification error",
